@@ -42,7 +42,7 @@ const Navbar = () => {
       {/* Actions */}
       <div className="navbar-actions">
         <button className="navbar-signin" id="nav-signin-btn" onClick={() => navigate('/login')}>Sign In</button>
-        <button className="navbar-get-started" id="nav-get-started-btn" onClick={() => navigate('/login')}>Get Started</button>
+        <button className="navbar-get-started" id="nav-get-started-btn" onClick={() => navigate('/signup')}>Get Started</button>
         {/* Hamburger for mobile */}
         <button
           className="navbar-hamburger"
@@ -82,7 +82,7 @@ const Navbar = () => {
             </button>
           ))}
           <div style={{ height: '1px', background: 'rgba(163,145,175,0.2)', margin: '8px 0' }} />
-          <button className="clay-btn-primary" style={{ width: '100%', justifyContent: 'center', borderRadius: '14px' }} onClick={() => navigate('/login')}>
+          <button className="clay-btn-primary" style={{ width: '100%', justifyContent: 'center', borderRadius: '14px' }} onClick={() => navigate('/signup')}>
             Get Started
           </button>
         </div>

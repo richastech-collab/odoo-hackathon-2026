@@ -12,6 +12,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute  from './ProtectedRoute';
 import AppLayout        from '../components/layout/AppLayout';
 import LoginPage        from '../pages/LoginPage';
+import SignupPage       from '../pages/SignupPage';
 import DashboardPage    from '../pages/DashboardPage';
 import VehiclesPage     from '../pages/VehiclesPage';
 import DriversPage      from '../pages/DriversPage';
@@ -24,6 +25,7 @@ const AppRouter = () => (
   <Routes>
     {/* Public — Login */}
     <Route path="/login" element={<LoginPage />} />
+    <Route path="/signup" element={<SignupPage />} />
 
     {/* Protected — requires authentication */}
     <Route element={<ProtectedRoute />}>

@@ -1,6 +1,9 @@
+import { useNavigate } from 'react-router-dom';
 import TruckIllustration from './TruckIllustration';
 
 const Hero = () => {
+  const navigate = useNavigate();
+  
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -30,7 +33,7 @@ const Hero = () => {
           <button
             className="clay-btn-primary"
             id="hero-get-started-btn"
-            onClick={() => scrollTo('cta')}
+            onClick={() => navigate('/signup')}
             style={{ fontSize: '1rem', padding: '16px 32px' }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
