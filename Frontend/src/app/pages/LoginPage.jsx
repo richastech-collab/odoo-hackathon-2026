@@ -97,11 +97,23 @@ const LoginPage = () => {
     navigate(dest, { replace: true });
   };
 
-  const quickFill = (demo) => {
+  const quickFill = async (demo) => {
     setForm({ email: demo.email, password: demo.password });
     setErrors({});
     setApiError('');
     setTouched({});
+
+    setLoading(true);
+    const result = await login(demo.email, demo.password);
+    setLoading(false);
+
+    if (!result.success) {
+      setApiError(result.error);
+      return;
+    }
+
+    const dest = params.get('from') || '/app/dashboard';
+    navigate(dest, { replace: true });
   };
 
   return (
@@ -314,7 +326,7 @@ const LoginPage = () => {
                       {demo.role}
                     </div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--d-muted)', lineHeight: 1 }}>
-                      Click to fill
+                      Click to login
                     </div>
                   </div>
                 </button>
