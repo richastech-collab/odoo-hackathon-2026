@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import init_db
-from routers import auth, vehicles, drivers, expenses
+from routers import auth, vehicles, drivers, expenses, maintenance
+from app.routes import trips, dashboard, reports
 
 app = FastAPI(title="Vehicle & Expense Management API", version="1.0.0")
 
@@ -25,6 +26,7 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(vehicles.router, prefix="/api")
 app.include_router(drivers.router, prefix="/api")
 app.include_router(expenses.router, prefix="/api")
+app.include_router(maintenance.router, prefix="/api")
 
 if __name__ == "__main__":
     import uvicorn
