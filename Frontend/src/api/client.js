@@ -24,6 +24,14 @@ const isServerError = (status) => status === 0 || status >= 500;
 async function request(endpoint, options = {}) {
   const token = sessionStorage.getItem('token') || localStorage.getItem('token');
 
+  // ── Bypass backend entirely if using a mock session ──
+  if (token && token.startsWith('mock_')) {
+    console.warn(`[TransitOps] Mock Session Active — routing to mockDb: ${options.method || 'GET'} ${endpoint}`);
+    const method = (options.method || 'GET').toUpperCase();
+    const body   = options.body ? (typeof options.body === 'string' ? JSON.parse(options.body) : options.body) : undefined;
+    return handleMockRequest(method, endpoint, body);
+  }
+
   const headers = {};
   if (token) headers['Authorization'] = `Bearer ${token}`;
   if (options.body && typeof options.body === 'string') {
@@ -71,6 +79,17 @@ async function request(endpoint, options = {}) {
 /* ── Form-encoded POST with fallback (used for /auth/login) ───── */
 async function requestForm(endpoint, formData) {
   const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+
+  // ── Bypass backend entirely if logging in as a demo user ──
+  if (endpoint === '/auth/login') {
+    const username = formData.get('username');
+    const demoEmails = ['fm@transitops.com', 'driver@transitops.com', 'safety@transitops.com', 'finance@transitops.com'];
+    if (demoEmails.includes(username)) {
+      console.warn(`[TransitOps] Demo login detected — routing to mockDb: POST ${endpoint}`);
+      return handleMockRequest('POST', endpoint, formData);
+    }
+  }
+
   const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
