@@ -14,6 +14,3 @@ Once the server is running, the interactive API documentation is automatically g
 
 - 'http://127.0.0.1:8000/docs'
 
-## Expanding the Validation Configuration
-
-If you are developing complex business logic routes, we recommend keeping Pydantic schemas separated from your database models to ensure optimal request/response type-safety. Check out the official FastAPI documentation for integrating comprehensive aggregation utilities into your pipelines.
