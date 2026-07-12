@@ -1,208 +1,211 @@
 import React from 'react';
 
-const colors = {
-  default: 'linear-gradient(145deg, #f9f6f2 0%, #ede8e3 100%)',
-  blue: 'linear-gradient(135deg, #e8f0fb 0%, #d8e8f8 100%)',
-  yellow: 'linear-gradient(135deg, #fef9ee 0%, #fdf0d5 100%)',
-  pink: 'linear-gradient(135deg, #fdeef0 0%, #fce0e3 100%)',
-  green: 'linear-gradient(135deg, #e8f7f1 0%, #d8f0e8 100%)',
-  purple: 'linear-gradient(135deg, #f2eefb 0%, #e9e4f6 100%)',
-};
-
-const FlowNode = ({ icon, title, desc, colorClass = 'default', type = 'default' }) => {
-  const bg = colors[colorClass] || colors.default;
-  const isDecision = type === 'decision';
-
-  return (
-    <div 
-      className={`clay-card ${isDecision ? 'animate-float-slow' : ''}`} 
-      style={{ 
-        background: bg, 
-        padding: '14px 16px', 
-        width: '180px',
-        textAlign: 'center', 
-        zIndex: 10,
-        borderRadius: isDecision ? '24px' : '20px',
-        border: isDecision ? '2px solid rgba(245, 196, 107, 0.4)' : '1.5px solid rgba(255, 255, 255, 0.7)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      {icon && <div style={{ fontSize: '1.4rem', marginBottom: '6px' }}>{icon}</div>}
-      <div style={{ fontWeight: '700', fontSize: '0.8rem', color: '#2d2640', marginBottom: desc ? '4px' : '0', lineHeight: '1.2' }}>
-        {title}
-      </div>
-      {desc && <div style={{ fontSize: '0.65rem', color: '#7b718e', lineHeight: '1.3' }}>{desc}</div>}
-    </div>
-  );
-};
-
-const VLine = ({ height = '30px', arrow = true, dashed = false }) => (
-  <div style={{ 
-    position: 'relative', 
-    width: '2px', 
-    height, 
-    background: dashed ? 'repeating-linear-gradient(to bottom, rgba(163, 145, 175, 0.5) 0, rgba(163, 145, 175, 0.5) 4px, transparent 4px, transparent 8px)' : 'rgba(163, 145, 175, 0.5)', 
-    zIndex: 1 
-  }}>
-    {arrow && (
-      <div style={{ 
-        position: 'absolute', 
-        bottom: '-2px', 
-        left: '-4px', 
-        width: '0', 
-        height: '0', 
-        borderLeft: '5px solid transparent', 
-        borderRight: '5px solid transparent', 
-        borderTop: '6px solid rgba(163, 145, 175, 0.5)' 
-      }} />
-    )}
-  </div>
-);
+const STEPS = [
+  {
+    num: '01',
+    icon: '📝',
+    color: '#7b9fe8',
+    bg: 'linear-gradient(135deg, #e8f0fb 0%, #d8e8f8 100%)',
+    title: 'Sign Up & Set Your Role',
+    desc: 'Create your account in seconds and choose your role — Fleet Manager, Driver, Safety Officer, or Financial Analyst. Each role gets a tailored dashboard.',
+  },
+  {
+    num: '02',
+    icon: '🚘',
+    color: '#5ec49a',
+    bg: 'linear-gradient(135deg, #e8f7f1 0%, #d8f0e8 100%)',
+    title: 'Add Your Vehicles & Drivers',
+    desc: 'Register your fleet vehicles and drivers in one place. Set statuses, assign licenses, track safety scores — all from a single clean interface.',
+  },
+  {
+    num: '03',
+    icon: '🗺️',
+    color: '#9b7ee6',
+    bg: 'linear-gradient(135deg, #f2eefb 0%, #e9e4f6 100%)',
+    title: 'Plan & Dispatch Trips',
+    desc: 'Create a trip, assign a vehicle and driver, and dispatch with one click. TransitOps automatically updates vehicle and driver statuses in real time.',
+  },
+  {
+    num: '04',
+    icon: '🔧',
+    color: '#f5a623',
+    bg: 'linear-gradient(135deg, #fef9ee 0%, #fdf0d5 100%)',
+    title: 'Track Maintenance & Costs',
+    desc: 'Log maintenance requests, fuel expenses, and tolls on the go. The system auto-calculates your operational cost per trip so you\'re always in control.',
+  },
+  {
+    num: '05',
+    icon: '📊',
+    color: '#e8567c',
+    bg: 'linear-gradient(135deg, #fdeef0 0%, #fce0e3 100%)',
+    title: 'Analyze & Improve',
+    desc: 'Get instant insights on fleet utilization, driver performance, and profitability — right on your dashboard. Export reports anytime with a click.',
+  },
+];
 
 const HowItWorks = () => (
-  <section className="hiw-section" id="how-it-works" style={{ overflow: 'hidden' }}>
-    <div className="hiw-header" style={{ marginBottom: '40px' }}>
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <div className="section-label">🔄 Workflow Architecture</div>
+  <section className="hiw-section" id="how-it-works">
+    {/* Header */}
+    <div className="hiw-header" style={{ marginBottom: '56px' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+        <div className="section-label">✨ Simple 5-Step Process</div>
       </div>
       <h2 className="section-heading" style={{ textAlign: 'center' }}>
-        How TransitOps works
+        Up and running in{' '}
+        <span className="gradient-text">minutes</span>
       </h2>
-      <p className="section-sub" style={{ textAlign: 'center', margin: '0 auto' }}>
-        A complete map of your operations, perfectly synchronized. See how data flows from user entry through every automated module in the system.
+      <p className="section-sub" style={{ textAlign: 'center', margin: '0 auto', maxWidth: 520 }}>
+        No training needed. From signup to full fleet visibility in 5 easy steps.
       </p>
     </div>
 
-    {/* Flowchart Container with horizontal scroll for responsiveness */}
-    <div style={{ width: '100%', overflowX: 'auto', paddingBottom: '40px', paddingTop: '10px' }}>
-      <div style={{ minWidth: '1300px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        
-        {/* --- TOP SECTION: ENTRY --- */}
-        <FlowNode title="Landing Page" icon="🏠" colorClass="default" />
-        <VLine />
-        <FlowNode title="Explore Features Section" icon="✨" colorClass="blue" />
-        <VLine />
-        <FlowNode title="New or Existing User?" icon="👤" type="decision" colorClass="yellow" />
-        
-        {/* Split Auth */}
-        <div style={{ display: 'flex', width: '400px', position: 'relative', justifyContent: 'space-between', marginTop: '0' }}>
-          {/* Top Horizontal Bar for Auth Split */}
-          <div style={{ position: 'absolute', top: '0', left: '25%', right: '25%', height: '2px', background: 'rgba(163, 145, 175, 0.5)' }}></div>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-            <VLine height="30px" />
-            <FlowNode title="Sign In" icon="🔓" colorClass="default" />
-            <div style={{ flex: 1, minHeight: '80px', borderLeft: '2px solid rgba(163, 145, 175, 0.5)' }} className="mt-[-2px]"></div>
+    {/* Steps */}
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '0',
+      maxWidth: '780px',
+      margin: '0 auto',
+      padding: '0 16px',
+      position: 'relative',
+    }}>
+      {/* Vertical connector line */}
+      <div style={{
+        position: 'absolute',
+        left: '52px',
+        top: '60px',
+        bottom: '60px',
+        width: '2px',
+        background: 'linear-gradient(to bottom, #7b9fe8, #5ec49a, #9b7ee6, #f5a623, #e8567c)',
+        opacity: 0.25,
+        borderRadius: '2px',
+      }} />
+
+      {STEPS.map((step, i) => (
+        <div
+          key={i}
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '24px',
+            padding: '20px 0',
+            position: 'relative',
+            zIndex: 1,
+          }}
+        >
+          {/* Step badge */}
+          <div style={{
+            flexShrink: 0,
+            width: '68px',
+            height: '68px',
+            borderRadius: '22px',
+            background: step.bg,
+            border: `2px solid ${step.color}33`,
+            boxShadow: `6px 6px 16px ${step.color}22, -4px -4px 12px rgba(255,255,255,0.8)`,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '2px',
+          }}>
+            <div style={{ fontSize: '1.6rem', lineHeight: 1 }}>{step.icon}</div>
+            <div style={{
+              fontSize: '0.55rem',
+              fontWeight: 800,
+              color: step.color,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+            }}>
+              {step.num}
+            </div>
           </div>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-            <VLine height="30px" />
-            <FlowNode title="Sign Up" icon="📝" colorClass="purple" />
-            <VLine height="20px" />
-            <FlowNode title="Select Role" desc="Fleet Manager, Driver, Safety, Finance" icon="👥" colorClass="blue" />
-          </div>
-        </div>
 
-        {/* Auth Merge */}
-        <div style={{ display: 'flex', width: '400px', position: 'relative', justifyContent: 'center' }}>
-           <div style={{ position: 'absolute', top: '0', left: '25%', right: '25%', height: '2px', background: 'rgba(163, 145, 175, 0.5)' }}></div>
-           <VLine height="30px" />
-        </div>
-
-        <FlowNode title="Main Dashboard" icon="🎛️" colorClass="blue" type="decision" />
-        <VLine height="40px" arrow={false} />
-
-        {/* --- BOTTOM SECTION: 6 MODULE BRANCHES --- */}
-        <div style={{ display: 'flex', width: '100%', position: 'relative', justifyContent: 'space-between' }}>
-          {/* Main Horizontal Distribution Line */}
-          <div style={{ position: 'absolute', top: '0', left: '8%', right: '8%', height: '2px', background: 'rgba(163, 145, 175, 0.5)' }}></div>
-          
-          {/* Branch 1: Vehicle Registry */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-            <VLine height="20px" />
-            <FlowNode title="Vehicle Registry" icon="🚘" colorClass="pink" />
-            <VLine height="20px" />
-            <FlowNode title="Add / Edit Vehicle" desc="Reg No, Type, Capacity, Status" icon="➕" colorClass="green" />
-          </div>
-
-          {/* Branch 2: Driver Management */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-            <VLine height="20px" />
-            <FlowNode title="Driver Management" icon="👤" colorClass="pink" />
-            <VLine height="20px" />
-            <FlowNode title="Add / Edit Driver" desc="License, Expiry, Safety Score" icon="➕" colorClass="green" />
-          </div>
-
-          {/* Branch 3: Trip Management */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-            <VLine height="20px" />
-            <FlowNode title="Trip Management" icon="🗺️" colorClass="pink" />
-            <VLine height="20px" />
-            <FlowNode title="Create Trip" desc="Source, Dest, Vehicle, Cargo" icon="📍" colorClass="green" />
-            <VLine height="20px" />
-            <FlowNode title="Validations Pass?" icon="❓" type="decision" colorClass="yellow" />
-            
-            {/* Validation Yes/No logic visual hint */}
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '10px' }}>
-                <div style={{ fontSize: '0.65rem', color: '#7b718e', fontWeight: 'bold' }}>Yes</div>
-                <VLine height="20px" />
-                <FlowNode title="Dispatch Trip" icon="🚀" colorClass="purple" />
-                <VLine height="20px" />
-                <FlowNode title="Auto-Set: On Trip" desc="Vehicle & Driver Status" icon="🔄" colorClass="green" />
-                <VLine height="20px" />
-                <div style={{ display: 'flex', gap: '10px' }}>
-                   <div style={{ background: colors.green, padding: '6px 12px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 'bold', boxShadow: 'var(--shadow-clay-sm)' }}>🏁 Complete</div>
-                   <div style={{ background: colors.pink, padding: '6px 12px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 'bold', boxShadow: 'var(--shadow-clay-sm)' }}>🚫 Cancel</div>
-                </div>
-                <VLine height="20px" />
-                <FlowNode title="Auto-Set: Available" desc="Vehicle & Driver Status" icon="🟢" colorClass="green" />
+          {/* Content card */}
+          <div
+            className="clay-card"
+            style={{
+              flex: 1,
+              padding: '20px 24px',
+              background: 'linear-gradient(135deg, rgba(252,249,246,0.9) 0%, rgba(242,238,252,0.75) 100%)',
+              border: `1.5px solid ${step.color}22`,
+              borderLeft: `3px solid ${step.color}66`,
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+              cursor: 'default',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateX(6px)';
+              e.currentTarget.style.boxShadow = `8px 8px 24px ${step.color}20, -4px -4px 14px rgba(255,255,255,0.8)`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateX(0)';
+              e.currentTarget.style.boxShadow = '';
+            }}
+          >
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              marginBottom: '8px',
+            }}>
+              <h3 style={{
+                margin: 0,
+                fontSize: '1.05rem',
+                fontWeight: 800,
+                color: 'var(--text-primary, #2d2640)',
+                lineHeight: 1.2,
+              }}>
+                {step.title}
+              </h3>
+              <div style={{
+                flexShrink: 0,
+                padding: '2px 10px',
+                borderRadius: '999px',
+                background: step.color + '18',
+                border: `1px solid ${step.color}44`,
+                fontSize: '0.65rem',
+                fontWeight: 700,
+                color: step.color,
+                letterSpacing: '0.05em',
+              }}>
+                Step {step.num}
               </div>
             </div>
+            <p style={{
+              margin: 0,
+              fontSize: '0.88rem',
+              color: 'var(--text-muted, #7b718e)',
+              lineHeight: 1.65,
+            }}>
+              {step.desc}
+            </p>
           </div>
-
-          {/* Branch 4: Maintenance */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-            <VLine height="20px" />
-            <FlowNode title="Maintenance" icon="🔧" colorClass="pink" />
-            <VLine height="20px" />
-            <FlowNode title="Create Log" desc="Maintenance Request" icon="📋" colorClass="green" />
-            <VLine height="20px" />
-            <FlowNode title="Auto-Set: In Shop" desc="Vehicle Status" icon="🔴" colorClass="pink" />
-            <VLine height="20px" />
-            <FlowNode title="Close Maintenance" icon="✅" colorClass="green" />
-            <VLine height="20px" />
-            <FlowNode title="Auto-Set: Available" desc="Vehicle Status" icon="🟢" colorClass="green" />
-          </div>
-
-          {/* Branch 5: Fuel & Expense */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-            <VLine height="20px" />
-            <FlowNode title="Fuel & Expense" icon="⛽" colorClass="pink" />
-            <VLine height="20px" />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <FlowNode title="Log Fuel" desc="Liters, Cost, Date" icon="💧" colorClass="green" />
-              <FlowNode title="Log Expenses" desc="Tolls, Misc" icon="💸" colorClass="green" />
-            </div>
-            <VLine height="20px" />
-            <FlowNode title="Auto-Compute" desc="Operational Cost per Trip" icon="🧮" colorClass="green" />
-          </div>
-
-          {/* Branch 6: Reports & Analytics */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-            <VLine height="20px" />
-            <FlowNode title="Reports & Analytics" icon="📈" colorClass="pink" />
-            <VLine height="20px" />
-            <FlowNode title="View Metrics" desc="Efficiency, Utilization, ROI" icon="📊" colorClass="green" />
-            <VLine height="20px" />
-            <FlowNode title="Export Reports" desc="CSV and PDF Formats" icon="💾" colorClass="purple" />
-          </div>
-
         </div>
-      </div>
+      ))}
+    </div>
+
+    {/* Bottom CTA hint */}
+    <div style={{
+      textAlign: 'center',
+      marginTop: '48px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '12px',
+    }}>
+      {['🚀 Free to start', '⚡ No setup fees', '📞 24/7 support'].map((item, i) => (
+        <div key={i} style={{
+          padding: '8px 18px',
+          borderRadius: '999px',
+          background: 'rgba(255,255,255,0.6)',
+          border: '1.5px solid rgba(255,255,255,0.8)',
+          boxShadow: '4px 4px 12px rgba(163,145,175,0.15), -3px -3px 10px rgba(255,255,255,0.7)',
+          fontSize: '0.8rem',
+          fontWeight: 600,
+          color: '#2d2640',
+        }}>
+          {item}
+        </div>
+      ))}
     </div>
   </section>
 );
