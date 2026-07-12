@@ -27,6 +27,9 @@ app.include_router(vehicles.router, prefix="/api")
 app.include_router(drivers.router, prefix="/api")
 app.include_router(expenses.router, prefix="/api")
 app.include_router(maintenance.router, prefix="/api")
+app.include_router(trips.router, prefix="/api")
+app.include_router(dashboard.router, prefix="/api")
+app.include_router(reports.router, prefix="/api")
 
 if __name__ == "__main__":
     import uvicorn
