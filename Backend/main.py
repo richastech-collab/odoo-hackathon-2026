@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import init_db
 from routers import auth, vehicles, drivers, expenses, maintenance
+from app.routes import trips, dashboard, reports
 
 app = FastAPI(title="Vehicle & Expense Management API", version="1.0.0")
 
