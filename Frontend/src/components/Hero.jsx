@@ -1,5 +1,4 @@
-import React from 'react';
-import DashboardMockup from './DashboardMockup';
+import TruckIllustration from './TruckIllustration';
 
 const Hero = () => {
   const scrollTo = (id) => {
@@ -52,28 +51,29 @@ const Hero = () => {
           </button>
         </div>
 
-        {/* Stats */}
-        <div className="hero-stats">
-          {[
-            { num: '500+', label: 'Fleets Managed' },
-            { num: '12K+', label: 'Trips Dispatched' },
-            { num: '98%', label: 'Uptime SLA' },
-            { num: '4.9★', label: 'User Rating' },
-          ].map((stat, i) => (
-            <div key={i} className="hero-stat">
-              <span className="hero-stat-num">{stat.num}</span>
-              <span className="hero-stat-label">{stat.label}</span>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* Right Visual */}
       <div className="hero-visual">
-        <div className="hero-bubble hero-bubble-1" />
-        <div className="hero-bubble hero-bubble-2" />
-        <div className="hero-bubble hero-bubble-3" />
-        <DashboardMockup />
+        <TruckIllustration />
+      </div>
+
+      {/* Stats (Full width at bottom) */}
+      <div className="hero-stats">
+        {[
+          { icon: '🚛', num: '650+', label: 'Vehicles' },
+          { icon: '👤', num: '120+', label: 'Drivers' },
+          { icon: '🗺️', num: '1,250+', label: 'Trips' },
+          { icon: '⏱️', num: '99.8%', label: 'Uptime' },
+        ].map((stat, i) => (
+          <div key={i} className="hero-stat animate-slide-up" style={{ animationDelay: `${i * 0.1 + 0.3}s` }}>
+            <div className="hero-stat-icon">{stat.icon}</div>
+            <div className="hero-stat-content">
+              <span className="hero-stat-num">{stat.num}</span>
+              <span className="hero-stat-label">{stat.label}</span>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );
