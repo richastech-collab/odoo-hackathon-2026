@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { apiClient } from '../../api/client';
+import { apiClient, getMockSession, clearMockSession } from '../../api/client';
 
 export const ROLES = {
   FLEET_MANAGER:  'Fleet Manager',
@@ -87,6 +87,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     sessionStorage.removeItem('token');
     localStorage.removeItem('token');
+    clearMockSession(); // also clear mock session if using fallback
   }, []);
 
   const value = { user, isLoading, login, logout };
