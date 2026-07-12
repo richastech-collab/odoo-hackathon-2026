@@ -1,9 +1,10 @@
 /**
- * DataTable — reusable table with search, loading skeletons, empty state, pagination.
+ * DataTable — reusable table with search, sorting, loading skeletons, empty state,
+ * pagination, and PDF export.
  *
  * Props:
  *   title        {string}       — toolbar heading
- *   columns      {Array}        — [{ key, header, render?, width?, align? }]
+ *   columns      {Array}        — [{ key, header, render?, width?, align?, sortable? }]
  *   data         {Array}        — rows of objects
  *   loading      {boolean}      — shows skeleton rows
  *   error        {string|null}  — shows error strip
@@ -16,8 +17,11 @@
  *   pageSize     {number}       — rows per page (default 10)
  *   rowKey       {string}       — key to use as React key (default 'id')
  *   onRowClick   {function}     — optional row click handler
+ *   pdfTitle     {string}       — title used in the PDF report header
  */
 import React, { useState, useMemo } from 'react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const SKELETON_ROWS = 6;
 
@@ -36,9 +40,11 @@ const DataTable = ({
   pageSize = 10,
   rowKey = 'id',
   onRowClick,
+  pdfTitle,
 }) => {
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
+  const [sortConfig, setSortConfig] = useState({ key: null, dir: 'asc' });
 
   // Client-side search filter
   const filtered = useMemo(() => {
@@ -49,17 +55,88 @@ const DataTable = ({
     );
   }, [data, query, searchable, searchKeys]);
 
-  // Reset to page 1 on search
+  // Column sorting
+  const sorted = useMemo(() => {
+    if (!sortConfig.key) return filtered;
+    return [...filtered].sort((a, b) => {
+      const aVal = a[sortConfig.key] ?? '';
+      const bVal = b[sortConfig.key] ?? '';
+      const cmp = String(aVal).localeCompare(String(bVal), undefined, { numeric: true });
+      return sortConfig.dir === 'asc' ? cmp : -cmp;
+    });
+  }, [filtered, sortConfig]);
+
+  // Paginate
   const rows = useMemo(() => {
     const start = (page - 1) * pageSize;
-    return filtered.slice(start, start + pageSize);
-  }, [filtered, page, pageSize]);
+    return sorted.slice(start, start + pageSize);
+  }, [sorted, page, pageSize]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
 
   const handleSearch = (e) => {
     setQuery(e.target.value);
     setPage(1);
+  };
+
+  const handleSort = (col) => {
+    if (!col.sortable) return;
+    setSortConfig((prev) =>
+      prev.key === col.key
+        ? { key: col.key, dir: prev.dir === 'asc' ? 'desc' : 'asc' }
+        : { key: col.key, dir: 'asc' },
+    );
+    setPage(1);
+  };
+
+  const getSortIcon = (col) => {
+    if (!col.sortable) return null;
+    if (sortConfig.key !== col.key) return <span style={{ opacity: 0.3, marginLeft: 4 }}>↕</span>;
+    return <span style={{ marginLeft: 4, color: 'var(--d-accent)' }}>{sortConfig.dir === 'asc' ? '↑' : '↓'}</span>;
+  };
+
+  // PDF Export — uses the currently filtered + sorted data
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    const exportTitle = pdfTitle || title || 'Report';
+
+    // Header
+    doc.setFontSize(18);
+    doc.setTextColor(44, 38, 64);
+    doc.text(exportTitle, 14, 20);
+
+    doc.setFontSize(10);
+    doc.setTextColor(120, 113, 142);
+    doc.text(`Generated: ${new Date().toLocaleString()}  |  Total records: ${sorted.length}`, 14, 27);
+
+    // Build table columns (skip columns without a plain key-based value)
+    const pdfCols = columns
+      .filter((c) => !c.pdfSkip)
+      .map((c) => ({ header: c.header, dataKey: c.key }));
+
+    // Build table rows from raw data (skip render functions for PDF)
+    const pdfRows = sorted.map((row) =>
+      Object.fromEntries(
+        pdfCols.map((c) => [c.dataKey, String(row[c.dataKey] ?? '')])
+      )
+    );
+
+    autoTable(doc, {
+      startY: 33,
+      columns: pdfCols,
+      body: pdfRows,
+      headStyles: {
+        fillColor: [123, 159, 232],
+        textColor: 255,
+        fontStyle: 'bold',
+        fontSize: 9,
+      },
+      alternateRowStyles: { fillColor: [245, 243, 255] },
+      styles: { fontSize: 8.5, cellPadding: 3 },
+      margin: { left: 14, right: 14 },
+    });
+
+    doc.save(`${exportTitle.replace(/\s+/g, '_')}_${Date.now()}.pdf`);
   };
 
   return (
@@ -79,6 +156,17 @@ const DataTable = ({
                 aria-label="Search table"
               />
             </div>
+          )}
+          {/* PDF Export Button */}
+          {!loading && data.length > 0 && (
+            <button
+              className="d-btn d-btn-secondary d-btn-sm"
+              onClick={handleExportPDF}
+              title="Export to PDF"
+              style={{ gap: 6 }}
+            >
+              📄 PDF
+            </button>
           )}
           {actions}
         </div>
@@ -102,9 +190,14 @@ const DataTable = ({
                   style={{
                     width: col.width,
                     textAlign: col.align || 'left',
+                    cursor: col.sortable ? 'pointer' : 'default',
+                    userSelect: col.sortable ? 'none' : undefined,
+                    whiteSpace: 'nowrap',
                   }}
+                  onClick={() => handleSort(col)}
                 >
                   {col.header}
+                  {getSortIcon(col)}
                 </th>
               ))}
             </tr>

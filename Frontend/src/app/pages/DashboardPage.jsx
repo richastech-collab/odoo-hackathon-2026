@@ -2,7 +2,7 @@
  * DashboardPage — Phase 7 Premium Analytics Dashboard
  * Beautiful charts, KPI cards, activity feed — all powered by Recharts.
  */
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
@@ -66,6 +66,18 @@ const RECENT_ACTIVITIES = [
   { id: 5, text: 'Trip VAN-093 completed successfully', time: 'Yesterday', icon: '✅', color: '#5ec49a' },
   { id: 6, text: 'Driver Sam Rivera — safety score updated', time: '2 days ago', icon: '👤', color: '#9b7ee6' },
 ];
+
+/* ── Expiring license mock data (within 30 days from today) ─── */
+const today = new Date();
+const addDays = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
+const MOCK_EXPIRING_DRIVERS = [
+  { id: 'd1', name: 'Arjun Mehta',   license: 'DL-MH-0092', expiry: addDays(today, 5)  },
+  { id: 'd2', name: 'Sara Collins',  license: 'DL-DL-0031', expiry: addDays(today, 18) },
+  { id: 'd3', name: 'Vijay Sharma',  license: 'DL-KA-0057', expiry: addDays(today, 28) },
+];
+
+const daysLeft = (date) => Math.ceil((date - today) / 86400000);
+const urgencyColor = (d) => d <= 7 ? '#f07a7a' : d <= 14 ? '#f5c46b' : '#6b9bdf';
 
 /* ── Sub-components ──────────────────────────────────────────── */
 const KPICard = ({ icon, label, value, sub, color, trend }) => (
@@ -143,6 +155,12 @@ const DashboardPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = useState('7D');
+  const [alertDismissed, setAlertDismissed] = useState(false);
+
+  const expiringAlerts = useMemo(
+    () => MOCK_EXPIRING_DRIVERS.filter(d => daysLeft(d.expiry) <= 30),
+    []
+  );
 
   const totalVehicles = VEHICLE_STATUS.reduce((s, v) => s + v.value, 0);
   const totalDrivers  = DRIVER_STATUS.reduce((s, v) => s + v.value, 0);
@@ -150,6 +168,62 @@ const DashboardPage = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
       
+      {/* ── Expiring License Alert Banner ── */}
+      {!alertDismissed && expiringAlerts.length > 0 && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(245,196,107,0.18), rgba(240,122,122,0.12))',
+          border: '1.5px solid rgba(245,196,107,0.5)',
+          borderRadius: 16,
+          padding: '14px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 16,
+          flexWrap: 'wrap',
+          boxShadow: '4px 4px 14px rgba(245,196,107,0.15), -3px -3px 10px rgba(255,255,255,0.7)',
+        }}>
+          <span style={{ fontSize: '1.4rem' }}>⚠️</span>
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <div style={{ fontWeight: 700, color: '#b5830a', fontSize: '0.9rem', marginBottom: 6 }}>
+              {expiringAlerts.length} Driver License{expiringAlerts.length > 1 ? 's' : ''} Expiring Soon!
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {expiringAlerts.map(d => (
+                <span key={d.id} style={{
+                  padding: '4px 12px',
+                  borderRadius: 999,
+                  background: urgencyColor(daysLeft(d.expiry)) + '22',
+                  border: `1px solid ${urgencyColor(daysLeft(d.expiry))}55`,
+                  color: urgencyColor(daysLeft(d.expiry)),
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                }}>
+                  {d.name} — {daysLeft(d.expiry)}d left ({d.license})
+                </span>
+              ))}
+            </div>
+          </div>
+          <button
+            onClick={() => navigate('/app/drivers')}
+            style={{
+              padding: '8px 18px', borderRadius: 12, fontWeight: 700, fontSize: '0.82rem',
+              background: 'linear-gradient(135deg, #f5c46b, #f0a623)',
+              color: '#fff', border: 'none', cursor: 'pointer',
+              boxShadow: '3px 3px 10px rgba(245,196,107,0.4)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            View Drivers →
+          </button>
+          <button
+            onClick={() => setAlertDismissed(true)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem', color: '#b5afc7', padding: 4 }}
+            aria-label="Dismiss"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* ── Page Header ── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 16 }}>
         <div>

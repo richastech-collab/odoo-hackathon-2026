@@ -42,12 +42,13 @@ const VehiclesPage = () => {
   const [errors, setErrors] = useState({});
 
   const columns = [
-    { key: 'regNo', header: 'Reg. No', render: (val) => <span style={{fontWeight: 700}}>{val}</span> },
-    { key: 'name', header: 'Name / Model' },
-    { key: 'type', header: 'Type' },
-    { key: 'capacity', header: 'Capacity (kg)', render: (val) => val.toLocaleString() },
-    { key: 'odometer', header: 'Odometer (km)', render: (val) => val.toLocaleString() },
-    { key: 'status', header: 'Status', render: (val) => <Badge variant={STATUS_COLORS[val]}>{val}</Badge> },
+    { key: 'regNo',     header: 'Reg. No',        sortable: true, render: (val) => <span style={{fontWeight: 700}}>{val}</span> },
+    { key: 'name',      header: 'Name / Model',    sortable: true },
+    { key: 'type',      header: 'Type',            sortable: true },
+    { key: 'capacity',  header: 'Capacity (kg)',   sortable: true, render: (val) => val.toLocaleString() },
+    { key: 'odometer',  header: 'Odometer (km)',   sortable: true, render: (val) => val.toLocaleString() },
+    { key: 'status',    header: 'Status',          sortable: true, render: (val) => <Badge variant={STATUS_COLORS[val]}>{val}</Badge> },
+
     { key: 'actions', header: '', align: 'right', render: (_, row) => (
       <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
         <Button size="sm" variant="secondary" onClick={() => handleEdit(row)}>Edit</Button>

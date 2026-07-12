@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const Navbar = () => {
+const Navbar = ({ darkMode, onToggleDarkMode }) => {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -41,6 +41,28 @@ const Navbar = () => {
 
       {/* Actions */}
       <div className="navbar-actions">
+        {/* Dark Mode Toggle */}
+        <button
+          onClick={onToggleDarkMode}
+          title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          aria-label="Toggle dark mode"
+          style={{
+            width: 38, height: 38,
+            borderRadius: 12,
+            border: '1.5px solid var(--card-border)',
+            background: 'var(--card-bg)',
+            boxShadow: 'var(--shadow-clay-sm)',
+            cursor: 'pointer',
+            fontSize: '1rem',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'all 0.2s ease',
+            flexShrink: 0,
+            marginRight: 8
+          }}
+        >
+          {darkMode ? '☀️' : '🌙'}
+        </button>
+
         <button className="navbar-signin" id="nav-signin-btn" onClick={() => navigate('/login')}>Sign In</button>
         <button className="navbar-get-started" id="nav-get-started-btn" onClick={() => navigate('/signup')}>Get Started</button>
         {/* Hamburger for mobile */}
@@ -49,9 +71,9 @@ const Navbar = () => {
           aria-label="Open menu"
           onClick={() => setMenuOpen(!menuOpen)}
         >
-          <span style={{ transform: menuOpen ? 'rotate(45deg) translateY(6px)' : 'none' }} />
-          <span style={{ opacity: menuOpen ? 0 : 1 }} />
-          <span style={{ transform: menuOpen ? 'rotate(-45deg) translateY(-6px)' : 'none' }} />
+          <span style={{ transform: menuOpen ? 'rotate(45deg) translateY(6px)' : 'none', background: 'var(--text-dark)' }} />
+          <span style={{ opacity: menuOpen ? 0 : 1, background: 'var(--text-dark)' }} />
+          <span style={{ transform: menuOpen ? 'rotate(-45deg) translateY(-6px)' : 'none', background: 'var(--text-dark)' }} />
         </button>
       </div>
 
@@ -61,10 +83,10 @@ const Navbar = () => {
           position: 'absolute',
           top: 'calc(100% + 12px)',
           left: 0, right: 0,
-          background: 'linear-gradient(135deg, rgba(249,246,242,0.97) 0%, rgba(237,232,227,0.97) 100%)',
+          background: 'var(--card-bg)',
           backdropFilter: 'blur(20px)',
           borderRadius: '24px',
-          border: '1.5px solid rgba(255,255,255,0.75)',
+          border: '1.5px solid var(--card-border)',
           boxShadow: 'var(--shadow-clay-lg)',
           padding: '16px',
           display: 'flex',
@@ -81,7 +103,7 @@ const Navbar = () => {
               {item}
             </button>
           ))}
-          <div style={{ height: '1px', background: 'rgba(163,145,175,0.2)', margin: '8px 0' }} />
+          <div style={{ height: '1px', background: 'var(--card-border)', margin: '8px 0' }} />
           <button className="clay-btn-primary" style={{ width: '100%', justifyContent: 'center', borderRadius: '14px' }} onClick={() => navigate('/signup')}>
             Get Started
           </button>

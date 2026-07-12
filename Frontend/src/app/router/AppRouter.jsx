@@ -21,7 +21,7 @@ import MaintenancePage  from '../pages/MaintenancePage';
 import FinancePage      from '../pages/FinancePage';
 import NotFoundPage     from '../pages/NotFoundPage';
 
-const AppRouter = () => (
+const AppRouter = ({ darkMode, toggleDarkMode }) => (
   <Routes>
     {/* Public — Login */}
     <Route path="/login" element={<LoginPage />} />
@@ -29,7 +29,7 @@ const AppRouter = () => (
 
     {/* Protected — requires authentication */}
     <Route element={<ProtectedRoute />}>
-      <Route path="/app" element={<AppLayout />}>
+      <Route path="/app" element={<AppLayout darkMode={darkMode} toggleDarkMode={toggleDarkMode} />}>
         <Route index element={<Navigate to="/app/dashboard" replace />} />
         <Route path="dashboard"   element={<DashboardPage   />} />
         <Route path="vehicles"    element={<VehiclesPage    />} />

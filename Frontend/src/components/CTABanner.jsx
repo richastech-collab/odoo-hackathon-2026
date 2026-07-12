@@ -10,21 +10,21 @@ const CTABanner = () => {
       {/* Floating decorative orbs */}
       <div style={{
         position: 'absolute', width: '120px', height: '120px',
-        background: 'linear-gradient(135deg, rgba(155,126,230,0.2), rgba(107,155,223,0.15))',
+        background: 'linear-gradient(135deg, color-mix(in srgb, var(--accent-purple) 20%, transparent), color-mix(in srgb, var(--accent-blue) 15%, transparent))',
         borderRadius: '50%',
         top: '20px', right: '15%',
-        border: '1.5px solid rgba(255,255,255,0.5)',
-        boxShadow: '8px 8px 20px rgba(155,126,230,0.15), -6px -6px 14px rgba(255,255,255,0.6)',
+        border: '1.5px solid var(--card-border)',
+        boxShadow: 'var(--shadow-clay-sm)',
         animation: 'float 5s ease-in-out infinite',
         pointerEvents: 'none',
       }} />
       <div style={{
         position: 'absolute', width: '72px', height: '72px',
-        background: 'linear-gradient(135deg, rgba(94,196,154,0.25), rgba(94,196,154,0.1))',
+        background: 'linear-gradient(135deg, color-mix(in srgb, var(--accent-mint) 25%, transparent), color-mix(in srgb, var(--accent-mint) 10%, transparent))',
         borderRadius: '50%',
         bottom: '30px', left: '12%',
-        border: '1.5px solid rgba(255,255,255,0.5)',
-        boxShadow: '5px 5px 14px rgba(94,196,154,0.15), -4px -4px 10px rgba(255,255,255,0.6)',
+        border: '1.5px solid var(--card-border)',
+        boxShadow: 'var(--shadow-clay-sm)',
         animation: 'float 4s ease-in-out infinite 1s',
         pointerEvents: 'none',
       }} />
@@ -77,11 +77,11 @@ const CTABanner = () => {
           <div key={i} style={{
             display: 'flex', alignItems: 'center', gap: '7px',
             padding: '8px 16px',
-            background: 'rgba(255,255,255,0.55)',
+            background: 'var(--card-bg)',
             borderRadius: '999px',
-            border: '1.5px solid rgba(255,255,255,0.7)',
-            boxShadow: '4px 4px 10px rgba(163,145,175,0.2), -3px -3px 8px rgba(255,255,255,0.7)',
-            fontSize: '0.8rem', fontWeight: '600', color: '#2d2640',
+            border: '1.5px solid var(--card-border)',
+            boxShadow: 'var(--shadow-clay-sm)',
+            fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-dark)',
           }}>
             <span>{badge.icon}</span>
             <span>{badge.label}</span>

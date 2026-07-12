@@ -1,5 +1,6 @@
 /**
- * Header — top bar showing page title, breadcrumb, user avatar and role badge.
+ * Header — top bar showing page title, breadcrumb, user avatar, role badge,
+ * and dark mode toggle (Phase 8 Bonus).
  */
 import React from 'react';
 import { useLocation } from 'react-router-dom';
@@ -13,7 +14,7 @@ const TITLE_MAP = {
   '/app/finance':    { title: 'Fuel & Expenses',  breadcrumb: 'Finance' },
 };
 
-const Header = ({ collapsed, onMenuToggle, user }) => {
+const Header = ({ collapsed, onMenuToggle, user, darkMode, onDarkModeToggle }) => {
   const location = useLocation();
   const meta = TITLE_MAP[location.pathname] || { title: 'TransitOps', breadcrumb: '' };
   const initials = user?.name
@@ -44,6 +45,30 @@ const Header = ({ collapsed, onMenuToggle, user }) => {
       </div>
 
       <div className="d-header-right">
+        {/* Dark Mode Toggle */}
+        <button
+          id="dark-mode-toggle"
+          onClick={onDarkModeToggle}
+          title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          aria-label="Toggle dark mode"
+          style={{
+            width: 38, height: 38,
+            borderRadius: 12,
+            border: '1.5px solid var(--d-border-md)',
+            background: darkMode
+              ? 'linear-gradient(135deg, #2d2a3e, #1a1828)'
+              : 'linear-gradient(135deg, rgba(255,255,255,0.8), rgba(242,238,252,0.8))',
+            boxShadow: 'var(--d-shadow-sm)',
+            cursor: 'pointer',
+            fontSize: '1rem',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'all 0.2s ease',
+            flexShrink: 0,
+          }}
+        >
+          {darkMode ? '☀️' : '🌙'}
+        </button>
+
         <span className="d-role-badge">
           {user?.role || 'Fleet Manager'}
         </span>

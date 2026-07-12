@@ -65,23 +65,25 @@ const DashboardMockup = () => {
       {/* Status rows */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {[
-          { label: 'TRK-001 · En Route', status: 'On Time', color: '#5ec49a', bg: '#e8f7f1' },
-          { label: 'TRK-004 · Maintenance', status: 'Scheduled', color: '#f5c46b', bg: '#fef9ee' },
-          { label: 'TRK-007 · Available', status: 'Ready', color: '#6b9bdf', bg: '#e8f0fb' },
+          { label: 'TRK-001 · En Route', status: 'On Time', color: 'var(--accent-mint)' },
+          { label: 'TRK-004 · Maintenance', status: 'Scheduled', color: 'var(--accent-amber)' },
+          { label: 'TRK-007 · Available', status: 'Ready', color: 'var(--accent-blue)' },
         ].map((row, i) => (
           <div key={i} style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            background: 'linear-gradient(135deg, rgba(249,246,242,0.8) 0%, rgba(237,232,227,0.6) 100%)',
+            background: 'var(--card-bg)',
             borderRadius: '12px', padding: '9px 12px',
-            boxShadow: '3px 3px 8px rgba(163,145,175,0.2), -2px -2px 6px rgba(255,255,255,0.7)',
-            border: '1px solid rgba(255,255,255,0.6)',
+            boxShadow: 'var(--shadow-clay-sm)',
+            border: '1px solid var(--card-border)',
+            transition: 'all 0.3s ease',
           }}>
-            <span style={{ fontSize: '0.72rem', fontWeight: '600', color: '#2d2640' }}>{row.label}</span>
+            <span style={{ fontSize: '0.72rem', fontWeight: '600', color: 'var(--text-dark)' }}>{row.label}</span>
             <span style={{
               padding: '3px 10px', borderRadius: '999px',
-              background: row.bg, color: row.color,
+              background: `color-mix(in srgb, ${row.color} 15%, transparent)`, 
+              color: row.color,
               fontSize: '0.65rem', fontWeight: '700',
-              boxShadow: '2px 2px 4px rgba(163,145,175,0.15), -1px -1px 3px rgba(255,255,255,0.6)',
+              border: `1px solid color-mix(in srgb, ${row.color} 30%, transparent)`,
             }}>
               {row.status}
             </span>

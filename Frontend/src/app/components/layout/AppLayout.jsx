@@ -1,21 +1,21 @@
 /**
  * AppLayout — authenticated shell with collapsible sidebar + fixed header.
- * Phase 2: reads real user from AuthContext instead of the Phase 1 MOCK_USER constant.
+ * Phase 8: Added dark mode state management + toggle passed to Header.
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header  from './Header';
 import { useAuth } from '../../context/AuthContext';
 import Background from '../../../components/Background';
 
-const AppLayout = () => {
+const AppLayout = ({ darkMode, toggleDarkMode }) => {
   const { user }                                    = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed]     = useState(false);
   const [mobileOpen, setMobileOpen]                 = useState(false);
 
   return (
-    <div className="app-root">
+    <div className={`app-root${darkMode ? ' dark-mode' : ''}`}>
       <Background />
       <div className="app-shell" style={{ position: 'relative', zIndex: 1 }}>
         <Sidebar
@@ -30,13 +30,15 @@ const AppLayout = () => {
             collapsed={sidebarCollapsed}
             onMenuToggle={() => setMobileOpen((o) => !o)}
             user={user}
+            darkMode={darkMode}
+            onDarkModeToggle={toggleDarkMode}
           />
 
           <main
             className={`d-main ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}
             id="main-content"
           >
-            <Outlet context={{ user }} />
+            <Outlet context={{ user, darkMode }} />
           </main>
         </div>
       </div>

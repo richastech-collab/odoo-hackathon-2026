@@ -23,11 +23,11 @@ import CustomCursor from './components/CustomCursor';
 import './app.css';
 
 /* ── Landing Page ───────────────────────────────────────────── */
-const LandingPage = () => (
+const LandingPage = ({ darkMode, toggleDarkMode }) => (
   <div style={{ minHeight: '100vh', overflowX: 'hidden', position: 'relative' }}>
     <Background />
     <div style={{ position: 'relative', zIndex: 1 }}>
-      <Navbar />
+      <Navbar darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
       <Hero />
       <Features />
       <BonusStrip />
@@ -40,6 +40,21 @@ const LandingPage = () => (
 
 /* ── Root ───────────────────────────────────────────────────── */
 function App() {
+  const [darkMode, setDarkMode] = React.useState(() => {
+    return localStorage.getItem('transitops-dark') === 'true';
+  });
+
+  React.useEffect(() => {
+    localStorage.setItem('transitops-dark', darkMode);
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }, [darkMode]);
+
+  const toggleDarkMode = () => setDarkMode(d => !d);
+
   return (
     <BrowserRouter>
       <CustomCursor />
@@ -50,10 +65,10 @@ function App() {
       <AuthProvider>
         <Routes>
           {/* Landing page — public */}
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<LandingPage darkMode={darkMode} toggleDarkMode={toggleDarkMode} />} />
 
           {/* All /login and /app/* routes */}
-          <Route path="/*" element={<AppRouter />} />
+          <Route path="/*" element={<AppRouter darkMode={darkMode} toggleDarkMode={toggleDarkMode} />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

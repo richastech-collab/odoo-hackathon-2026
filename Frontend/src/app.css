@@ -776,3 +776,84 @@ table.d-table {
 @media (max-width: 480px) {
   .d-main { padding: 16px 12px; }
 }
+
+/* ── Dark Mode ───────────────────────────────────────────────── */
+.app-root.dark-mode {
+  --d-bg:        #13111c;
+  --d-surface:   #1d1a2b;
+  --d-surface-2: #231f34;
+  --d-border:    rgba(155, 126, 230, 0.18);
+  --d-border-md: rgba(155, 126, 230, 0.30);
+
+  --d-text:      #e8e4f4;
+  --d-muted:     #9d94b8;
+  --d-light:     #5c5474;
+
+  --d-shadow-sm: 4px 4px 14px rgba(0,0,0,0.45), -2px -2px 8px rgba(155,126,230,0.06);
+  --d-shadow:    6px 6px 20px rgba(0,0,0,0.55), -4px -4px 12px rgba(155,126,230,0.08);
+  --d-shadow-lg: 8px 8px 28px rgba(0,0,0,0.65), -6px -6px 16px rgba(155,126,230,0.1);
+}
+
+.app-root.dark-mode .d-sidebar {
+  background: linear-gradient(175deg, rgba(29,26,43,0.97) 0%, rgba(35,31,52,0.98) 100%);
+  border-right-color: rgba(155,126,230,0.15);
+}
+
+.app-root.dark-mode .d-header {
+  background: linear-gradient(90deg, rgba(29,26,43,0.97) 0%, rgba(35,31,52,0.97) 100%);
+  border-bottom-color: rgba(155,126,230,0.15);
+}
+
+.app-root.dark-mode .d-card,
+.app-root.dark-mode .d-table-wrap {
+  background: linear-gradient(135deg, rgba(29,26,43,0.9) 0%, rgba(35,31,52,0.85) 100%);
+  border-color: rgba(155,126,230,0.14);
+}
+
+.app-root.dark-mode .d-table thead th {
+  background: rgba(155,126,230,0.08);
+  color: var(--d-muted);
+}
+
+.app-root.dark-mode .d-table tbody tr:hover {
+  background: rgba(155,126,230,0.06);
+}
+
+.app-root.dark-mode .d-input {
+  background: rgba(19,17,28,0.7);
+  border-color: rgba(155,126,230,0.2);
+  color: var(--d-text);
+}
+
+.app-root.dark-mode .d-input:focus {
+  border-color: var(--d-accent);
+  background: rgba(19,17,28,0.9);
+}
+
+.app-root.dark-mode .d-nav-item:hover {
+  background: rgba(155,126,230,0.1);
+}
+
+.app-root.dark-mode .d-nav-item.active {
+  background: linear-gradient(135deg, rgba(155,126,230,0.18) 0%, rgba(107,155,223,0.12) 100%);
+}
+
+.app-root.dark-mode .d-badge {
+  filter: brightness(0.85);
+}
+
+.app-root.dark-mode .d-modal {
+  background: linear-gradient(135deg, rgba(29,26,43,0.98) 0%, rgba(35,31,52,0.98) 100%);
+}
+
+.app-root.dark-mode .kpi-card {
+  background: linear-gradient(135deg, rgba(29,26,43,0.9) 0%, rgba(35,31,52,0.85) 100%) !important;
+}
+
+/* Dark mode transition */
+.app-root { transition: background-color 0.3s ease, color 0.3s ease; }
+.app-root .d-sidebar,
+.app-root .d-header,
+.app-root .d-card,
+.app-root .d-table-wrap { transition: background 0.3s ease, border-color 0.3s ease; }
+

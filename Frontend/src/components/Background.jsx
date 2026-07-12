@@ -37,12 +37,13 @@ const Background = () => (
       background: `
         linear-gradient(
           145deg,
-          #f0eaf9 0%,
-          #e8f2fb 25%,
-          #eaf7f1 50%,
-          #f9f2e8 75%,
-          #f4edfb 100%
+          var(--bg-lavender) 0%,
+          var(--bg-sky) 25%,
+          var(--bg-mint) 50%,
+          var(--bg-cream) 75%,
+          var(--bg-lavender) 100%
         )`,
+      transition: 'background 0.3s ease',
     }} />
 
     {/* ── Layer 2a: Aurora blob — purple top-left ─────────────── */}
