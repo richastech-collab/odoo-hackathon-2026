@@ -1,8 +1,11 @@
 from pydantic import BaseModel
-from typing import Dict, Any, Optional
+from typing import Optional
 
 class ExpenseCreate(BaseModel):
-    vehicle_id: str
-    amount: float
+    vehicleId: str
+    date: str
     type: str
-    details: Optional[Dict[str, Any]] = None
+    amount: float
+    desc: Optional[str] = None
+    liters: Optional[float] = None
+    costPerLiter: Optional[float] = None

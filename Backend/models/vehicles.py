@@ -2,7 +2,10 @@ from pydantic import BaseModel
 from typing import Optional
 
 class VehicleCreate(BaseModel):
-    license_plate: str
-    model: str
-    year: Optional[int] = None
-    status: str = "Active"
+    regNo: str
+    name: str
+    type: str
+    capacity: float
+    odometer: float
+    cost: float
+    status: str = "Available"

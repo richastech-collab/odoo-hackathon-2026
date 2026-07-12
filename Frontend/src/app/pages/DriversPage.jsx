@@ -1,21 +1,11 @@
-/**
- * DriversPage — Phase 3 CRUD for Drivers.
- */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { apiClient } from '../../api/client';
 import DataTable from '../components/ui/DataTable';
 import Button from '../components/ui/Button';
 import ModalDialog from '../components/ui/ModalDialog';
 import Input from '../components/ui/Input';
 import SelectDropdown from '../components/ui/SelectDropdown';
 import Badge from '../components/ui/Badge';
-
-// Initial mock data
-const INITIAL_DRIVERS = [
-  { id: 'd1', name: 'Sam Rivera', licenseNo: 'DL-93821', category: 'Class A', expiryDate: '2028-11-15', safetyScore: 98, status: 'Available' },
-  { id: 'd2', name: 'Jordan Lee', licenseNo: 'DL-44210', category: 'Class B', expiryDate: '2025-02-10', safetyScore: 85, status: 'On Trip' },
-  { id: 'd3', name: 'Taylor Swift', licenseNo: 'DL-77321', category: 'Class A', expiryDate: '2026-08-22', safetyScore: 72, status: 'Off Duty' },
-  { id: 'd4', name: 'Chris Evans', licenseNo: 'DL-11002', category: 'Class C', expiryDate: '2024-12-01', safetyScore: 45, status: 'Suspended' },
-];
 
 const LICENSE_CATEGORIES = [
   { value: 'Class A', label: 'Class A (Heavy)' },
@@ -31,15 +21,31 @@ const STATUS_COLORS = {
 };
 
 const DriversPage = () => {
-  const [drivers, setDrivers] = useState(INITIAL_DRIVERS);
+  const [drivers, setDrivers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   
-  // Form state
   const [form, setForm] = useState({
     name: '', licenseNo: '', category: 'Class A', expiryDate: '', safetyScore: ''
   });
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    fetchDrivers();
+  }, []);
+
+  const fetchDrivers = async () => {
+    try {
+      setIsLoading(true);
+      const data = await apiClient.get('/drivers');
+      setDrivers(data || []);
+    } catch (e) {
+      console.error('Error fetching drivers:', e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const columns = [
     { key: 'name', header: 'Name', render: (val) => <span style={{fontWeight: 700}}>{val}</span> },
@@ -108,36 +114,39 @@ const DriversPage = () => {
     setModalOpen(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to remove this driver?')) {
-      setDrivers(prev => prev.filter(d => d.id !== id));
+      try {
+        await apiClient.delete(`/drivers/${id}`);
+        fetchDrivers();
+      } catch (e) {
+        alert(e.message);
+      }
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) return;
-
-    if (editingId) {
-      setDrivers(prev => prev.map(d => d.id === editingId ? {
-        ...d,
+    
+    try {
+      const payload = {
         name: form.name,
         licenseNo: form.licenseNo,
         category: form.category,
         expiryDate: form.expiryDate,
         safetyScore: Number(form.safetyScore)
-      } : d));
-    } else {
-      setDrivers(prev => [...prev, {
-        id: `d${Date.now()}`,
-        name: form.name,
-        licenseNo: form.licenseNo,
-        category: form.category,
-        expiryDate: form.expiryDate,
-        safetyScore: Number(form.safetyScore),
-        status: 'Available'
-      }]);
+      };
+
+      if (editingId) {
+        await apiClient.put(`/drivers/${editingId}`, payload);
+      } else {
+        await apiClient.post('/drivers', payload);
+      }
+      setModalOpen(false);
+      fetchDrivers();
+    } catch (e) {
+      setErrors({ licenseNo: e.message });
     }
-    setModalOpen(false);
   };
 
   return (
@@ -150,15 +159,19 @@ const DriversPage = () => {
         <Button leftIcon="➕" onClick={handleOpenModal}>Add Driver</Button>
       </div>
 
-      <DataTable 
-        title="Driver Directory"
-        columns={columns}
-        data={drivers}
-        searchable={true}
-        searchKeys={['name', 'licenseNo', 'status']}
-        emptyTitle="No drivers found"
-        emptyDesc="Add a new driver to start managing your workforce."
-      />
+      {isLoading ? (
+        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>Loading drivers...</div>
+      ) : (
+        <DataTable 
+          title="Driver Directory"
+          columns={columns}
+          data={drivers}
+          searchable={true}
+          searchKeys={['name', 'licenseNo', 'status']}
+          emptyTitle="No drivers found"
+          emptyDesc="Add a new driver to start managing your workforce."
+        />
+      )}
 
       <ModalDialog
         open={isModalOpen}

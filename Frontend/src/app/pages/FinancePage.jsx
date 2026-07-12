@@ -1,32 +1,11 @@
-/**
- * FinancePage — Phase 6 CRUD for Fuel & General Expenses.
- * Features a tabbed view, separate data tables, and auto-calculation for fuel costs.
- */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { apiClient } from '../../api/client';
 import DataTable from '../components/ui/DataTable';
 import Button from '../components/ui/Button';
 import ModalDialog from '../components/ui/ModalDialog';
 import Input from '../components/ui/Input';
 import SelectDropdown from '../components/ui/SelectDropdown';
 import Badge from '../components/ui/Badge';
-
-// Mock DB states
-const MOCK_VEHICLES = [
-  { id: 'v1', regNo: 'VAN-05', name: 'Ford Transit', status: 'Available' },
-  { id: 'v2', regNo: 'TRK-12', name: 'Volvo FH16', status: 'On Trip' },
-  { id: 'v3', regNo: 'VAN-08', name: 'Mercedes Sprinter', status: 'In Shop' },
-  { id: 'v4', regNo: 'TRK-09', name: 'Scania R500', status: 'Available' },
-];
-
-const INITIAL_FUEL = [
-  { id: 'f1', vehicleId: 'v1', date: '2026-07-11', liters: 45, costPerLiter: 1.50, total: 67.50 },
-  { id: 'f2', vehicleId: 'v2', date: '2026-07-12', liters: 120, costPerLiter: 1.45, total: 174.00 },
-];
-
-const INITIAL_EXPENSES = [
-  { id: 'e1', date: '2026-07-10', category: 'Tolls', amount: 25.00, description: 'Highway A4 Toll' },
-  { id: 'e2', date: '2026-07-11', category: 'Maintenance', amount: 150.00, description: 'Routine Inspection (VAN-05)' },
-];
 
 const EXPENSE_CATEGORIES = [
   { value: 'Tolls', label: 'Tolls' },
@@ -39,51 +18,70 @@ const EXPENSE_CATEGORIES = [
 const FinancePage = () => {
   const [activeTab, setActiveTab] = useState('fuel'); // 'fuel' | 'expenses'
   
-  const [fuelLogs, setFuelLogs] = useState(INITIAL_FUEL);
-  const [expenses, setExpenses] = useState(INITIAL_EXPENSES);
+  const [fuelLogs, setFuelLogs] = useState([]);
+  const [expenses, setExpenses] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   const [isModalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   
-  // Fuel form state
   const [fuelForm, setFuelForm] = useState({ vehicleId: '', date: '', liters: '', costPerLiter: '' });
-  // Expense form state
   const [expenseForm, setExpenseForm] = useState({ date: '', category: 'Tolls', amount: '', description: '' });
-  
   const [errors, setErrors] = useState({});
 
-  // Get vehicle name for fuel table
-  const getVehicleName = (id) => MOCK_VEHICLES.find(v => v.id === id)?.regNo || 'Unknown';
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  /* ── Columns ───────────────────────────────────────────────── */
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      const [expensesData, vehiclesData] = await Promise.all([
+        apiClient.get('/expenses'),
+        apiClient.get('/vehicles'),
+      ]);
+      
+      const allExpenses = expensesData || [];
+      setFuelLogs(allExpenses.filter(e => e.type === 'Fuel'));
+      setExpenses(allExpenses.filter(e => e.type !== 'Fuel'));
+      setVehicles(vehiclesData || []);
+    } catch (e) {
+      console.error('Error fetching finance data:', e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getVehicleName = (id) => vehicles.find(v => v.id === id)?.regNo || 'Unknown';
+
   const fuelColumns = [
     { key: 'vehicle', header: 'Vehicle', render: (_, row) => <span style={{ fontWeight: 600, color: 'var(--d-text)' }}>🚛 {getVehicleName(row.vehicleId)}</span> },
     { key: 'date', header: 'Date', render: (val) => <span style={{ color: 'var(--d-muted)' }}>{new Date(val).toLocaleDateString()}</span> },
     { key: 'liters', header: 'Volume (L)', render: (val) => <span style={{ fontWeight: 600 }}>{val} L</span> },
     { key: 'costPerLiter', header: 'Cost / L', render: (val) => `$${val.toFixed(2)}` },
-    { key: 'total', header: 'Total Cost', render: (val) => <span style={{ fontWeight: 700, color: 'var(--d-primary)' }}>${val.toFixed(2)}</span> },
+    { key: 'amount', header: 'Total Cost', render: (val) => <span style={{ fontWeight: 700, color: 'var(--d-primary)' }}>${val.toFixed(2)}</span> },
     { key: 'actions', header: '', align: 'right', render: (_, row) => (
       <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
         <Button size="sm" variant="secondary" onClick={() => handleEditFuel(row)}>Edit</Button>
-        <Button size="sm" variant="ghost" style={{ color: 'var(--d-danger)' }} onClick={() => handleDelete(row.id, 'fuel')}>Delete</Button>
+        <Button size="sm" variant="ghost" style={{ color: 'var(--d-danger)' }} onClick={() => handleDelete(row.id)}>Delete</Button>
       </div>
     )}
   ];
 
   const expenseColumns = [
     { key: 'date', header: 'Date', render: (val) => <span style={{ color: 'var(--d-muted)' }}>{new Date(val).toLocaleDateString()}</span> },
-    { key: 'category', header: 'Category', render: (val) => <Badge variant="neutral">{val}</Badge> },
-    { key: 'description', header: 'Description' },
+    { key: 'type', header: 'Category', render: (val) => <Badge variant="neutral">{val}</Badge> },
+    { key: 'desc', header: 'Description' },
     { key: 'amount', header: 'Amount', render: (val) => <span style={{ fontWeight: 700, color: 'var(--d-danger)' }}>-${val.toFixed(2)}</span> },
     { key: 'actions', header: '', align: 'right', render: (_, row) => (
       <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
         <Button size="sm" variant="secondary" onClick={() => handleEditExpense(row)}>Edit</Button>
-        <Button size="sm" variant="ghost" style={{ color: 'var(--d-danger)' }} onClick={() => handleDelete(row.id, 'expense')}>Delete</Button>
+        <Button size="sm" variant="ghost" style={{ color: 'var(--d-danger)' }} onClick={() => handleDelete(row.id)}>Delete</Button>
       </div>
     )}
   ];
 
-  /* ── Form Handlers ─────────────────────────────────────────── */
   const validateFuel = () => {
     const errs = {};
     if (!fuelForm.vehicleId) errs.vehicleId = 'Please select a vehicle.';
@@ -130,57 +128,74 @@ const FinancePage = () => {
   const handleEditExpense = (exp) => {
     setExpenseForm({
       date: exp.date,
-      category: exp.category,
+      category: exp.type,
       amount: exp.amount.toString(),
-      description: exp.description
+      description: exp.desc || ''
     });
     setErrors({});
     setEditingId(exp.id);
     setModalOpen(true);
   };
 
-  const handleDelete = (id, type) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this record?')) {
-      if (type === 'fuel') setFuelLogs(prev => prev.filter(l => l.id !== id));
-      else setExpenses(prev => prev.filter(e => e.id !== id));
+      try {
+        await apiClient.delete(`/expenses/${id}`);
+        fetchData();
+      } catch (e) {
+        alert(e.message);
+      }
     }
   };
 
-  const handleSubmit = () => {
-    if (activeTab === 'fuel') {
-      if (!validateFuel()) return;
-      const liters = Number(fuelForm.liters);
-      const costPerLiter = Number(fuelForm.costPerLiter);
-      const total = liters * costPerLiter;
-      
-      if (editingId) {
-        setFuelLogs(prev => prev.map(l => l.id === editingId ? {
-          ...l, vehicleId: fuelForm.vehicleId, date: fuelForm.date, liters, costPerLiter, total
-        } : l));
+  const handleSubmit = async () => {
+    try {
+      if (activeTab === 'fuel') {
+        if (!validateFuel()) return;
+        const liters = Number(fuelForm.liters);
+        const costPerLiter = Number(fuelForm.costPerLiter);
+        const amount = liters * costPerLiter;
+        
+        const payload = {
+          vehicleId: fuelForm.vehicleId,
+          date: fuelForm.date,
+          type: 'Fuel',
+          amount,
+          liters,
+          costPerLiter
+        };
+
+        if (editingId) {
+          await apiClient.put(`/expenses/${editingId}`, payload);
+        } else {
+          await apiClient.post('/expenses', payload);
+        }
       } else {
-        setFuelLogs(prev => [{
-          id: `f${Date.now()}`, vehicleId: fuelForm.vehicleId, date: fuelForm.date, liters, costPerLiter, total
-        }, ...prev]);
+        if (!validateExpense()) return;
+        
+        const payload = {
+          vehicleId: vehicles[0]?.id || 'unknown', // general expenses aren't strictly tied to a vehicle in the form, just pass first or placeholder
+          date: expenseForm.date,
+          type: expenseForm.category,
+          amount: Number(expenseForm.amount),
+          desc: expenseForm.description
+        };
+
+        if (editingId) {
+          await apiClient.put(`/expenses/${editingId}`, payload);
+        } else {
+          await apiClient.post('/expenses', payload);
+        }
       }
-    } else {
-      if (!validateExpense()) return;
-      
-      if (editingId) {
-        setExpenses(prev => prev.map(e => e.id === editingId ? {
-          ...e, date: expenseForm.date, category: expenseForm.category, amount: Number(expenseForm.amount), description: expenseForm.description
-        } : e));
-      } else {
-        setExpenses(prev => [{
-          id: `e${Date.now()}`, date: expenseForm.date, category: expenseForm.category, amount: Number(expenseForm.amount), description: expenseForm.description
-        }, ...prev]);
-      }
+      setModalOpen(false);
+      fetchData();
+    } catch (e) {
+      alert(e.message);
     }
-    setModalOpen(false);
   };
 
-  // Derived calculations for UI
   const currentFuelTotal = Number(fuelForm.liters || 0) * Number(fuelForm.costPerLiter || 0);
-  const vehicleOptions = MOCK_VEHICLES.map(v => ({ value: v.id, label: v.regNo }));
+  const vehicleOptions = vehicles.map(v => ({ value: v.id, label: v.regNo }));
 
   return (
     <div>
@@ -194,7 +209,6 @@ const FinancePage = () => {
         </Button>
       </div>
 
-      {/* Tabs */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 24, borderBottom: '2px solid var(--d-border)', paddingBottom: 16 }}>
         <button
           onClick={() => setActiveTab('fuel')}
@@ -220,8 +234,9 @@ const FinancePage = () => {
         </button>
       </div>
 
-      {/* Tables */}
-      {activeTab === 'fuel' ? (
+      {isLoading ? (
+        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>Loading records...</div>
+      ) : activeTab === 'fuel' ? (
         <DataTable 
           title="Fuel Consumption History"
           columns={fuelColumns}
@@ -237,13 +252,12 @@ const FinancePage = () => {
           columns={expenseColumns}
           data={expenses}
           searchable={true}
-          searchKeys={['category', 'description', 'date']}
+          searchKeys={['type', 'desc', 'date']}
           emptyTitle="No expenses found"
           emptyDesc="Log tolls, meals, or other operational costs."
         />
       )}
 
-      {/* Modal */}
       <ModalDialog
         open={isModalOpen}
         onClose={() => setModalOpen(false)}

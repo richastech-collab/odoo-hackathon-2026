@@ -1,23 +1,6 @@
-/**
- * AuthContext — global authentication state for TransitOps.
- *
- * Provides:
- *   user       — the currently logged-in user object (null = logged out)
- *   isLoading  — true during the initial session restore check
- *   login(email, password) — validates mock credentials, sets user, persists to sessionStorage
- *   logout()               — clears user, redirects to /login
- *
- * MOCK CREDENTIALS (Phase 2 — will be replaced by real API calls in backend integration):
- *   Fleet Manager  → fm@transitops.com     / fleet123
- *   Driver         → driver@transitops.com / drive123
- *   Safety Officer → safety@transitops.com / safe123
- *   Financial      → finance@transitops.com/ fin123
- *
- * Role-based nav visibility is defined here via ROLE_PERMISSIONS.
- */
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { apiClient } from '../../api/client';
 
-/* ── Role-based permission map ──────────────────────────────── */
 export const ROLES = {
   FLEET_MANAGER:  'Fleet Manager',
   DRIVER:         'Driver',
@@ -51,91 +34,59 @@ export const ROLE_PERMISSIONS = {
   ],
 };
 
-/* ── Mock user database ─────────────────────────────────────── */
-const MOCK_USERS = [
-  {
-    id: '1',
-    email: 'fm@transitops.com',
-    password: 'fleet123',
-    name: 'Alex Johnson',
-    role: ROLES.FLEET_MANAGER,
-    avatar: 'AJ',
-  },
-  {
-    id: '2',
-    email: 'driver@transitops.com',
-    password: 'drive123',
-    name: 'Sam Rivera',
-    role: ROLES.DRIVER,
-    avatar: 'SR',
-  },
-  {
-    id: '3',
-    email: 'safety@transitops.com',
-    password: 'safe123',
-    name: 'Jordan Lee',
-    role: ROLES.SAFETY_OFFICER,
-    avatar: 'JL',
-  },
-  {
-    id: '4',
-    email: 'finance@transitops.com',
-    password: 'fin123',
-    name: 'Morgan Chen',
-    role: ROLES.FINANCIAL,
-    avatar: 'MC',
-  },
-];
-
-const SESSION_KEY = 'transitops_user';
-
-/* ── Context ────────────────────────────────────────────────── */
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser]         = useState(null);
-  const [isLoading, setLoading] = useState(true); // for session restore
+  const [isLoading, setLoading] = useState(true);
 
-  // Restore session from sessionStorage on initial mount
-  useEffect(() => {
+  const fetchMe = useCallback(async () => {
     try {
-      const stored = sessionStorage.getItem(SESSION_KEY);
-      if (stored) setUser(JSON.parse(stored));
-    } catch {
-      /* ignore corrupt data */
+      const userData = await apiClient.get('/auth/me');
+      setUser(userData);
+    } catch (e) {
+      sessionStorage.removeItem('token');
+      localStorage.removeItem('token');
+      setUser(null);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  /**
-   * login — validates mock credentials.
-   * Returns { success: true } or { success: false, error: string }
-   */
-  const login = useCallback(async (email, password) => {
-    // Simulate network latency
-    await new Promise((r) => setTimeout(r, 700));
-
-    const found = MOCK_USERS.find(
-      (u) =>
-        u.email.toLowerCase() === email.toLowerCase().trim() &&
-        u.password === password,
-    );
-
-    if (!found) {
-      return { success: false, error: 'Invalid email or password. Please try again.' };
+  useEffect(() => {
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+    if (token) {
+      fetchMe();
+    } else {
+      setLoading(false);
     }
+  }, [fetchMe]);
 
-    // Strip password before storing
-    const { password: _pwd, ...safeUser } = found;
-    setUser(safeUser);
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(safeUser));
-    return { success: true, user: safeUser };
+  const login = useCallback(async (email, password) => {
+    try {
+      const formData = new URLSearchParams();
+      formData.append('username', email);
+      formData.append('password', password);
+
+      const response = await apiClient.postForm('/auth/login', formData);
+      const token = response.access_token;
+      
+      sessionStorage.setItem('token', token);
+      
+      // Fetch user profile
+      const userData = await apiClient.get('/auth/me');
+      setUser(userData);
+      
+      return { success: true, user: userData };
+    } catch (error) {
+      return { success: false, error: error.message || 'Invalid email or password. Please try again.' };
+    }
   }, []);
 
   const logout = useCallback(() => {
     setUser(null);
-    sessionStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem('token');
+    localStorage.removeItem('token');
   }, []);
 
   const value = { user, isLoading, login, logout };
@@ -143,7 +94,6 @@ export const AuthProvider = ({ children }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-/* ── Hook ───────────────────────────────────────────────────── */
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');

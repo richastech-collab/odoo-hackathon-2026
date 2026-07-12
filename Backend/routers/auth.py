@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from security import hash_password, verify_password, create_access_token
+from security import hash_password, verify_password, create_access_token, get_current_user
 from database import db
 from pydantic import BaseModel, EmailStr
 
@@ -39,3 +39,10 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     
     access_token = create_access_token(data={"user_id": str(user["_id"])})
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.get("/me")
+async def get_me(current_user: dict = Depends(get_current_user)):
+    user = dict(current_user)
+    user["id"] = str(user.pop("_id"))
+    user.pop("password", None)
+    return user

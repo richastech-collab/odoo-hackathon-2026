@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.database import db
+from database import db
 
 router = APIRouter(
     prefix="/dashboard",
@@ -8,31 +8,25 @@ router = APIRouter(
 
 
 @router.get("/")
-def dashboard():
-
-    if db is None:
-        return {
-            "message": "MongoDB not connected"
-        }
-
-    total_trips = db.trips.count_documents({})
-
-    active_trips = db.trips.count_documents({
+async def dashboard():
+    total_trips = await db.trips.count_documents({})
+    
+    active_trips = await db.trips.count_documents({
         "status": "On Trip"
     })
-
-    completed_trips = db.trips.count_documents({
+    
+    completed_trips = await db.trips.count_documents({
         "status": "Completed"
     })
-
-    cancelled_trips = db.trips.count_documents({
+    
+    cancelled_trips = await db.trips.count_documents({
         "status": "Cancelled"
     })
-
-    pending_trips = db.trips.count_documents({
+    
+    pending_trips = await db.trips.count_documents({
         "status": "Draft"
     })
-
+    
     return {
         "totalTrips": total_trips,
         "activeTrips": active_trips,

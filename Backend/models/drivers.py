@@ -3,6 +3,8 @@ from typing import Optional
 
 class DriverCreate(BaseModel):
     name: str
-    license_number: str
+    licenseNo: str
+    category: str
+    expiryDate: str
+    safetyScore: int
     status: str = "Available"
-    assigned_vehicle: Optional[str] = None
