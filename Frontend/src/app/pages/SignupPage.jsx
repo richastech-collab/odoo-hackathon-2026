@@ -6,8 +6,16 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Background from '../../components/Background';
 
-const validate = ({ name, company, email, password }) => {
+const ROLES = [
+  { id: 'Fleet Manager',    label: 'Fleet Manager',    icon: '🎛️', color: '#7b9fe8' },
+  { id: 'Driver',           label: 'Driver',           icon: '🚛', color: '#5ec49a' },
+  { id: 'Safety Officer',   label: 'Safety Officer',   icon: '🛡️', color: '#f5c46b' },
+  { id: 'Financial Analyst',label: 'Financial Analyst',icon: '📊', color: '#9b7ee6' },
+];
+
+const validate = ({ role, name, company, email, password }) => {
   const errors = {};
+  if (!role) errors.role = 'Please select your role.';
   if (!name.trim()) errors.name = 'Full name is required.';
   if (!company.trim()) errors.company = 'Company name is required.';
   
@@ -30,7 +38,7 @@ const SignupPage = () => {
   const [params] = useSearchParams();
   const { user } = useAuth(); // In a real app we'd also have a `signup` function from useAuth
 
-  const [form, setForm] = useState({ name: '', company: '', email: '', password: '' });
+  const [form, setForm] = useState({ role: '', name: '', company: '', email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -59,7 +67,7 @@ const SignupPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setTouched({ name: true, company: true, email: true, password: true });
+    setTouched({ role: true, name: true, company: true, email: true, password: true });
 
     const errs = validate(form);
     if (Object.values(errs).some(Boolean)) {
@@ -132,6 +140,49 @@ const SignupPage = () => {
               ⚠️ {apiError}
             </div>
           )}
+
+          {/* Role Selection */}
+          <div style={{ marginBottom: 20 }}>
+            <label className="d-label d-label-required" style={{ marginBottom: 12, display: 'block' }}>Select your Role</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              {ROLES.map((r) => {
+                const isSelected = form.role === r.id;
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => { setForm(f => ({ ...f, role: r.id })); setErrors(e => ({ ...e, role: '' })); setTouched(t => ({...t, role: true})); }}
+                    disabled={loading}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 8,
+                      padding: '9px 12px',
+                      borderRadius: 12,
+                      border: `1.5px solid ${isSelected ? r.color : 'var(--d-border)'}`,
+                      background: isSelected ? `${r.color}15` : 'var(--d-surface-2)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      textAlign: 'left',
+                      boxShadow: isSelected ? `0 0 0 2px ${r.color}33` : 'var(--d-shadow-sm)',
+                    }}
+                  >
+                    <span style={{
+                      width: 28, height: 28, borderRadius: 8,
+                      background: r.color + '22',
+                      border: `1.5px solid ${r.color}44`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '0.9rem', flexShrink: 0,
+                    }}>
+                      {r.icon}
+                    </span>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--d-text)', lineHeight: 1.2 }}>
+                      {r.label}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            {touched.role && errors.role && <span className="d-input-error" style={{ marginTop: 6, display: 'block' }}>{errors.role}</span>}
+          </div>
 
           <form onSubmit={handleSubmit} noValidate>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
