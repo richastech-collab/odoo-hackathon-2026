@@ -4,8 +4,8 @@ from security import RoleChecker
 from database import db
 
 router = APIRouter(prefix="/vehicles", tags=["Vehicles"])
-admin_manager_gate = RoleChecker(["Admin", "Manager"])
-all_roles_gate = RoleChecker(["Admin", "Manager", "Driver"])
+admin_manager_gate = RoleChecker(["admin", "manager"])
+all_roles_gate = RoleChecker(["admin", "manager", "driver"])
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def add_vehicle(vehicle_data: VehicleCreate, current_user: dict = Depends(admin_manager_gate)):

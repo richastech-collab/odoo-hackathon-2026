@@ -1,10 +1,15 @@
+import os
 from motor.motor_asyncio import AsyncIOMotorClient
-from config import settings
+from dotenv import load_dotenv
 
-client = AsyncIOMotorClient(settings.MONGO_URI)
-db = client.vehicle_db
+load_dotenv()
+
+MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
+client = AsyncIOMotorClient(MONGODB_URI)
+db = client.get_database("odoo_hackathon")
 
 async def init_db():
-    await db.users.create_index("email", unique=True)
-    await db.vehicles.create_index("license_plate", unique=True)
-    await db.drivers.create_index("license_number", unique=True)
+    try:
+        await client.admin.command('ping')
+    except Exception as e:
+        raise e
