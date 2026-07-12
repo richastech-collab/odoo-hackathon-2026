@@ -174,7 +174,8 @@ A **single, unified platform** with:
 > 📷 **Workflow Diagram** *(Add your workflow image here)*
 
 ```
-[PLACEHOLDER: workflow-diagram.png]
+<img width="11009" height="12093" alt="image" src="https://github.com/user-attachments/assets/125a9213-e3a3-4b61-864e-6145b6723523" />
+
 ```
 
 ### Step-by-Step Flow
