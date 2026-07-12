@@ -28,21 +28,6 @@ Dispatch smarter. Drive safer. Operate leaner.
 
 ---
 
-## 📸 Preview
-
-> **Landing Page** — Premium claymorphism design with dark/light mode toggle
-
-| Light Mode | Dark Mode |
-|---|---|
-| *(Screenshot placeholder — add your screenshot here)* | *(Screenshot placeholder — add your screenshot here)* |
-
-> **Dashboard** — Role-based analytics, real-time fleet overview
-
-| Dashboard View | Trips Management |
-|---|---|
-| *(Screenshot placeholder)* | *(Screenshot placeholder)* |
-
----
 
 ## 📋 Table of Contents
 
